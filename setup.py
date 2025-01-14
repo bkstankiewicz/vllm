@@ -324,11 +324,11 @@ class repackage_wheel(build_ext):
 
 
 def _is_hpu() -> bool:
-    is_hpu_available = False
+    is_hpu_available = True
     try:
         subprocess.run(["hl-smi"], capture_output=True, check=True)
     except (FileNotFoundError, PermissionError, subprocess.CalledProcessError):
-        if os.path.exists('/dev/accel/accel0') and os.path.exists(
+        if not os.path.exists('/dev/accel/accel0') or not os.path.exists(
                 '/dev/accel/accel_controlD0'):
             # last resort...
             try:
@@ -337,7 +337,7 @@ def _is_hpu() -> bool:
                 is_hpu_available = int(output) > 0
             except (ValueError, FileNotFoundError, PermissionError,
                     subprocess.CalledProcessError):
-                is_hpu_available = True
+                is_hpu_available = False
     return is_hpu_available or VLLM_TARGET_DEVICE == "hpu"
 
 
